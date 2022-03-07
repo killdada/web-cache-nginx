@@ -1,0 +1,11 @@
+version: "3.4"
+
+services:
+  web:
+    build: .
+    ports:
+      - "127.0.0.1:9999:80"
+    environment:
+      TZ: Asia/Shanghai
+volumes:
+  nginx-test:
