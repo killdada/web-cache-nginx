@@ -9,8 +9,8 @@ WORKDIR /web/nginx-test
 # copy 打包之后的资源到工作区
 COPY ./dist /web/nginx-test
 
-COPY ./deploy.404.min.js /web/nginx-test
+COPY ./js/deploy.404.min.js /web/nginx-test
 
-ADD ./nginx.conf /etc/nginx/nginx.conf
+ADD ./nginx/nginx.conf /etc/nginx/nginx.conf
 
 EXPOSE 80

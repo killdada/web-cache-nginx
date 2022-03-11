@@ -2,7 +2,7 @@ import { defineConfig } from 'umi';
 
 export default defineConfig({
   outputPath: 'deploy/dist',
-  favicon: '/deploy/favicon.ico',
+  favicon: '/deploy/public/favicon.ico',
   nodeModulesTransform: {
     type: 'none',
   },

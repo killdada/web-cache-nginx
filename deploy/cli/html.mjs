@@ -5,9 +5,9 @@ const posthtmlPluginRemoveDuplicates = require('posthtml-plugin-remove-duplicate
 const { insertAt } = require('posthtml-insert-at');
 const minifier = require('posthtml-minifier');
 
-const indexPath = path.join(__dirname, './dist/index.html');
+const indexPath = path.join(__dirname, '../dist/index.html');
 
-const html = await fs.readFile(path.join(__dirname, './dist/index.html'));
+const html = await fs.readFile(path.join(__dirname, '../dist/index.html'));
 
 posthtml()
   .use(

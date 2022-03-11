@@ -4,7 +4,7 @@
   "scripts": {
     "dev": "umi dev",
     "start": "umi dev",
-    "deploy": "zx deploy/deploy.mjs",
+    "deploy": "zx deploy/cli/deploy.mjs",
     "build": "umi build && yarn deploy",
     "postinstall": "umi generate tmp",
     "prettier": "prettier --write '**/*.{js,jsx,tsx,ts,less,md,json}'",
