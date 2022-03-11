@@ -3,6 +3,15 @@
 // 进入发布目录
 cd('./deploy');
 
+console.log(chalk.cyan('404处理插入到index.html中'));
+
+// 把404这个js处理文件插入到index.html的head标签里面
+await $`zx html.mjs`;
+
+console.log(
+  chalk.green('404js外链插入成功，后续dockerfile会把该文件copy到工作区'),
+);
+
 // docker-compose构建镜像启动容器，(-d:后台运行,--build：每次都重新构建镜像，必须加不加的话dist源码更新容器里面跑的镜像还是旧的导致代码没更新)
 await $`docker-compose up -d --build`;
 

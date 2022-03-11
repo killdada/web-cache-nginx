@@ -1,7 +1,10 @@
+
+import './a.less';
+
 export default function aDemo() {
   return (
-    <div>
-      aaaaaaaaaaa ---bbbbb
+    <div className='apage'>
+      aaaaaaaaaaa
     </div>
   );
 }
