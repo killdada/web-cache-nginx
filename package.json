@@ -4,6 +4,10 @@
   "scripts": {
     "dev": "umi dev",
     "start": "umi dev",
+    "dev:alias": "cross-env UMI_ENV=alias umi dev",
+    "build:alias": "cross-env UMI_ENV=alias umi build && yarn nginx -t alias",
+    "build:404": "umi build && yarn nginx -t 404",
+    "nginx": "zx deploy/cli/index.mjs",
     "deploy": "zx deploy/cli/deploy.mjs",
     "build": "umi build && yarn deploy",
     "postinstall": "umi generate tmp",

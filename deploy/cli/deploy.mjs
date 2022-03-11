@@ -14,26 +14,37 @@ const paths = {
   cliRelativePath: path.relative(process.cwd(), __dirname),
 };
 
-console.log(chalk.cyan('404js文件压缩中......'));
+const nginxType = argv.type;
 
-// 压缩需要注入的404.js文件
-await $`terser ${paths.jsPath} -o ${paths.jsOutputPath} -c defaults`;
+// 如果type === 404那么不需要注入404的处理，我们需要模拟缺失404的情况
+if (nginxType !== 404) {
+  console.log(chalk.cyan('404js文件压缩中......'));
+  // 压缩需要注入的404.js文件
+  await $`terser ${paths.jsPath} -o ${paths.jsOutputPath} -c defaults`;
 
-console.log(chalk.green('404js文件压缩成功!!!'));
+  console.log(chalk.green('404js文件压缩成功!!!'));
 
-// 从命令当前目录进入到cli目录
-cd(paths.cliRelativePath);
+  // 从命令当前目录进入到cli目录
+  if (paths.cliRelativePath) {
+    cd(paths.cliRelativePath);
+  }
 
-console.log(chalk.cyan('404js插入入口文件中......'));
+  console.log(chalk.cyan('404js插入入口文件中......'));
 
-await $`zx html.mjs`;
+  await $`zx html.mjs --type=${nginxType}`;
 
-console.log(chalk.green('404js插入入口文件成功!!!'));
+  console.log(chalk.green('404js插入入口文件成功!!!'));
 
-console.log(chalk.blue('注意404.min.js需要复制到容器里面'));
+  console.log(chalk.blue('注意404.min.js需要复制到容器里面'));
 
-// cli目录往上退到docker目录,然后开始执行docker命令
-cd('..');
+  // cli目录往上退到docker目录,然后开始执行docker命令
+  cd('..');
+} else {
+  if (paths.cliRelativePath) {
+    cd(paths.cliRelativePath);
+  }
+  cd('..');
+}
 
 console.log(chalk.cyan('打包镜像文件，重启容器中......'));
 

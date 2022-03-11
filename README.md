@@ -45,7 +45,9 @@ docker、docker-compose
 
 本地模拟
 
-切换到 `404` 分支，按如下图操作即可复现该问题
+按图所示步骤多次执行
+
+`yarn build:404`
 
 ![](./doc-img/404-1.png)
 
@@ -517,13 +519,45 @@ posthtml()
 
 ### nginx alias
 
-nginx alias的处理，demo模拟可切换到 `alias` 分支查看
+部分项目存在不是部署到跟目录，可能是部署到其他目录上，比如 /product，可以考虑指定alias
 
+nginx alias的处理，demo，nginx文件在deploy/nginx/nginx.alias.conf
+
+执行测试 `yarn build:alias` 构建加发布 `yarn nginx -t alias` 只是修改nginx然后重新启动
+
+```js
+server {
+  listen 80;
+  server_name default;
+
+  index index.html;
+
+  location /product {
+      try_files $uri $uri/ /index.html;
+      alias /web/nginx-test/;
+  }
+}
+```
+
+
+[访问地址](http://localhost:9999/product/#/)
+
+上面的配置,比如
+
+http://localhost:9999/product/p__index.91379c6e.async.js 实际访问的地址是容器目录
+
+`/web/nginx-test/p__index.91379c6e.async.js`
+
+alias会直接把 /product匹配的这一层路径去掉，然后用alias + product后面的路径拼接起来访问，root不会去掉匹配再拼接路径，大家可以自行修改alias.conf验证测试
+
+关于 alias root介绍
+
+[alias，root指令详解](https://www.jianshu.com/p/4be0d5882ec5)
 
 
 ### nginx add_header
 
-nginx add_header，demo模拟可切换到 `header` 分支查看
+nginx add_header，文件在deploy/nginx/nginx.header.conf,修改后测试 `yarn nginx -t header`
 
 nginx 的 add_header并不会智能合并，需要注意匹配了一个location，在location里面的 add_header不会合并外层的公共header作用于当前location。比如
 
@@ -535,7 +569,7 @@ server {
   root /web/nginx-test;
   index index.html;
 
-  // 公共header
+  # 公共header
   add_header Access-Control-Allow-Methods *;
 
   location / {
@@ -594,6 +628,7 @@ server {
 - [nginx](https://www.nginx.cn/doc/)
 - [posthtml](https://github.com/posthtml)
 - [ast](https://astexplorer.net/)
+- [terser](https://github.com/terser/terser)
 
 其他文档
 
@@ -608,5 +643,7 @@ server {
 - [docker 容器里面使用vi](https://zhuanlan.zhihu.com/p/332446790)
 - [parse](https://github.com/posthtml/posthtml-parser) parse判断是否已经注入，已经注入不再注入
 - [posthtml-plugin-remove-duplicates](https://github.com/sithmel/posthtml-plugin-remove-duplicates) 直接移除重复标签
-
+- [chalk颜色丢失](https://github.com/chalk/chalk/issues/381)
+- [html-minifier](https://github.com/kangax/html-minifier)
+- [posthtml-minifier](https://github.com/Rebelmail/posthtml-minifier)
 

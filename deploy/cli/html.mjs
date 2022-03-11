@@ -9,13 +9,17 @@ const indexPath = path.join(__dirname, '../dist/index.html');
 
 const html = await fs.readFile(path.join(__dirname, '../dist/index.html'));
 
+const jsPath = `${argv.type === 'alias' ? '/product' : ''}/deploy.404.min.js`;
+
+console.log('qqq', jsPath);
+
 posthtml()
   .use(
     // https://github.com/posthtml/posthtml-insert-at
     insertAt({
       selector: 'head',
       append: `
-        <script src="/deploy.404.min.js"></script>
+        <script src="${jsPath}"></script>
       `,
     }),
   )
