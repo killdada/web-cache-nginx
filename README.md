@@ -461,6 +461,8 @@ posthtml()
 
 ```
 
+> 至此404问题验证完成，but之前别的偶发的后面再看能不能复现然后具体再分析，（实际那个唯一能偶发复现的项目已经废弃），后续考虑直接把该处理逻辑直接集成到现有的发布cli里面
+
 ## 其他问题
 
 总结一些调试还有之前遇到的一些nginx docker问题等
@@ -469,7 +471,26 @@ posthtml()
 
 ### nginx add_header
 
-### docker exec
+### docker
+
+1: docker exec
+
+`docker exec -it deploy_web_1 /bin/sh`
+`docker exec -it deploy_web_1 /bin/bash`
+
+报 ·`CI runtime exec failed: exec failed: container_linux.go:380: starting container process caused: exec: "C:/Program Files/Git/usr/bin/sh": stat C:/Program Files/Git/usr/bin/sh: no such file or directory: unknown`
+
+可以执行试下 `docker exec -it deploy_web_1 bash`
+
+2: docker 容器里面如何使用vi编辑器
+
+我们进入容器里面，ls可以看到对应的目录，也可以直接vi编辑修改源码，index.html等，[docker 容器里面使用vi](https://zhuanlan.zhihu.com/p/332446790)
+
+3：除了vi更改对应源码，我们复制本地文件到容器里面进行覆盖，也会生效
+
+[docker cp](https://www.runoob.com/docker/docker-cp-command.html)
+
+> 注意nginx目录是，/etc/nginx/nginx.conf 如果是vi修改或者复制文件覆盖nginx配置，需要重启下nginx生效 nginx -s reload
 
 ## 参考文档
 
@@ -493,5 +514,6 @@ posthtml()
 - [nginx etag生成规则](https://www.ipcpu.com/2019/09/nginx-etag-gzip/)
 - [js错误捕获](https://zhuanlan.zhihu.com/p/123286696)
 - [转译器原理 parser 篇](https://juejin.cn/post/6959502530745204772#heading-3)
+- [[docker 容器里面使用vi](https://zhuanlan.zhihu.com/p/332446790)]
 
 
