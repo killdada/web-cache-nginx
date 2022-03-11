@@ -41,7 +41,7 @@ docker、docker-compose
 
 本地模拟
 
-切换到 404分支，按如下图操作即可复现该问题
+切换到 `404` 分支，按如下图操作即可复现该问题
 
 ![](./doc-img/404-1.png)
 
@@ -469,7 +469,50 @@ posthtml()
 
 ### nginx alias
 
+nginx alias的处理，demo模拟可切换到 `alias` 分支查看
+
+
+
 ### nginx add_header
+
+nginx add_header，demo模拟可切换到 `header` 分支查看
+
+nginx 的 add_header并不会智能合并，需要注意匹配了一个location，在location里面的 add_header不会合并外层的公共header作用于当前location。比如
+
+```js
+server {
+  listen 80;
+  server_name default;
+
+  root /web/nginx-test;
+  index index.html;
+
+  // 公共header
+  add_header Access-Control-Allow-Methods *;
+
+  location / {
+    if ($request_filename ~* ^.*[.](html|htm)$) {
+      add_header Cache-Control "no-store";
+    }
+    try_files $uri $uri/ /index.html;
+  }
+
+  location ~* ^.+\.(jpg|jpeg|gif|png|bmp|css|js|swf)$ {
+      access_log off;
+  }
+}
+```
+
+当文件匹配到 index.html的时候，响应头只有  Cache-Control 没有 Access-Control-Allow-Methods
+
+如图
+
+![](./doc-img/header1.png)
+
+![](./doc-img/header2.png)
+
+
+> 之前没有注意这个问题，导致在index.html里面加了一些 header以后丢失了外层的公共header,导致公共的跨域配置丢失
 
 ### docker
 
