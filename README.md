@@ -17,6 +17,10 @@ docker、docker-compose
 <!-- zx全局安装，发布使用了该命令工具 -->
 `yarn global add zx`
 
+<!-- terser全局安装，压缩404.js使用 -->
+`yarn global add terser`
+
+
 2：本地开发
 
 `yarn start`
@@ -252,6 +256,10 @@ volumes:
 
 > docker-compose 里面加了build参数，这样源码更新容器才能更新到最新的源码，但是会带来更多的垃圾镜像，我们可以手动清理，
 
+也可以考虑每次直接清除
+
+> Found orphan containers (deploy_web1_1) for this project. If you removed or renamed this service in your compose file, you can run this command with the --remove-orphans flag to clean it up.
+
 基于 zx 文档参考在下面，我们对这二步直接封装下
 
 ```js
@@ -384,7 +392,7 @@ fs读取虽然可以拼接但是不是很优雅，参考 [ast](https://astexplor
 1：抽离原先的404处理js代码
 
 ```js
-// ./deploy/deploy-404.js
+// ./deploy/deploy.404.js
 function getScriptAddress(scriptStr) {
   var jsTagReg = /^\x3Cscript(\s|.)+src="(.*\.js)"(\s|.)+\x3C\/script>$/;
   var match = jsTagReg.exec(scriptStr);
@@ -452,7 +460,7 @@ posthtml()
     insertAt({
       selector: 'head',
       append: `
-        <script src="/deploy-404.js"></script>
+        <script src="/deploy.404.min.js"></script>
       `,
     }),
   )
@@ -460,6 +468,46 @@ posthtml()
   .then((result) => fs.writeFileSync(indexPath, result.html));
 
 ```
+
+2.1：频繁执行 yarn deploy可能会给html添加了多个404 js
+
+多次直接执行yarn deploy 404标签添加多个的问题
+
+- [parse](https://github.com/posthtml/posthtml-parser) parse判断是否已经注入，已经注入不再注入
+- [posthtml-plugin-remove-duplicates](https://github.com/sithmel/posthtml-plugin-remove-duplicates) 直接移除重复标签
+
+目前采用 插件移除重复标签
+
+```js
+// deploy/html.mjs
+#!/usr/bin/env zx
+
+const posthtml = require('posthtml');
+const posthtmlPluginRemoveDuplicates = require('posthtml-plugin-remove-duplicates');
+const { insertAt } = require('posthtml-insert-at');
+
+const indexPath = path.join(__dirname, './dist/index.html');
+
+const html = await fs.readFile(path.join(__dirname, './dist/index.html'));
+
+posthtml()
+  .use(
+    // https://github.com/posthtml/posthtml-insert-at
+    insertAt({
+      selector: 'head',
+      append: `
+        <script src="/deploy.404.min.js"></script>
+      `,
+    }),
+  )
+  // https://github.com/sithmel/posthtml-plugin-remove-duplicates
+  .use(posthtmlPluginRemoveDuplicates({ script: true }))
+  .process(html)
+  .then((result) => fs.writeFileSync(indexPath, result.html));
+
+```
+
+> posthtml-plugin-remove-duplicates 文件里面options.js 最新版本options.script
 
 > 至此404问题验证完成，but之前别的偶发的后面再看能不能复现然后具体再分析，（实际那个唯一能偶发复现的项目已经废弃），后续考虑直接把该处理逻辑直接集成到现有的发布cli里面
 
@@ -557,6 +605,8 @@ server {
 - [nginx etag生成规则](https://www.ipcpu.com/2019/09/nginx-etag-gzip/)
 - [js错误捕获](https://zhuanlan.zhihu.com/p/123286696)
 - [转译器原理 parser 篇](https://juejin.cn/post/6959502530745204772#heading-3)
-- [[docker 容器里面使用vi](https://zhuanlan.zhihu.com/p/332446790)]
+- [docker 容器里面使用vi](https://zhuanlan.zhihu.com/p/332446790)
+- [parse](https://github.com/posthtml/posthtml-parser) parse判断是否已经注入，已经注入不再注入
+- [posthtml-plugin-remove-duplicates](https://github.com/sithmel/posthtml-plugin-remove-duplicates) 直接移除重复标签
 
 

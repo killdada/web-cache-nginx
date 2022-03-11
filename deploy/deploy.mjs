@@ -5,6 +5,9 @@ cd('./deploy');
 
 console.log(chalk.cyan('404处理插入到index.html中'));
 
+// 压缩需要注入的404.js文件
+await $`terser ./deploy.404.js -o deploy.404.min.js -c defaults`;
+
 // 把404这个js处理文件插入到index.html的head标签里面
 await $`zx html.mjs`;
 
